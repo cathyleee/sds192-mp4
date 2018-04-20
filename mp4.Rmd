@@ -1,0 +1,21 @@
+---
+title: "Mini Project 4"
+author: "Cathy Lee, Dardalie Brooks, and Ha Cao"
+date: "20 April 2018"
+output: 
+  html_document:
+    theme: united
+    code_folding: hide
+---
+
+Please see our Github repository[^github] for more details on this project.
+
+```{r Setup, message=FALSE, warning=FALSE}
+# Set up the environment
+library(mdsr)
+library(RMySQL)
+# Available databases: airlines, citibike, fec, imdb, lahman, nyctaxi
+db <- dbConnect_scidb(dbname = "imdb")
+```
+
+[^github]: https://github.com/cathyleee/sds192-mp4
