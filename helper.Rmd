@@ -1,0 +1,28 @@
+---
+title: "Helper"
+author: "Ha Cao"
+date: "April 27, 2018"
+output: html_document
+---
+
+Here are some common variables between tables in IMDB schema:
+
+* `name.id = cast_info.person_id`
+
+* `char_name.id = cast_info.person_role_id`
+
+* `char_name.id = cast_info.person_role_id`
+
+* `name.id = person_info.person_id =`
+`cast_info.person_id =` 
+`aka_name.person_id`
+
+* `title.id = cast_info.movie_id =` 
+`aka_title.movie_id =` 
+`movie_companies.movie_id =` 
+`movie_info.movie_id =` 
+`movie_info_idx.movie_id =` 
+`movie_keyword.movie_id = movie_link.movie_id`
+
+* `movie_companies.company_id = company_name.id`
+
