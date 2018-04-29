@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Ha Cao" />
+<meta name="author" content="Ha Cao, Cathy Lee" />
 
 <meta name="date" content="2018-04-27" />
 
@@ -120,13 +120,14 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Helper</h1>
-<h4 class="author"><em>Ha Cao</em></h4>
+<h4 class="author"><em>Ha Cao, Cathy Lee</em></h4>
 <h4 class="date"><em>April 27, 2018</em></h4>
 
 </div>
 
 
-<p>Here are some common variables between tables in IMDB schema:</p>
+<div id="some-common-variables-between-tables-in-the-imdb-schema" class="section level3">
+<h3>Some common variables between tables in the <code>IMDB</code> schema</h3>
 <ul>
 <li><p><code>name.id = cast_info.person_id</code></p></li>
 <li><p><code>char_name.id = cast_info.person_role_id</code></p></li>
@@ -135,6 +136,287 @@ $(document).ready(function () {
 <li><p><code>title.id = cast_info.movie_id =</code> <code>aka_title.movie_id =</code> <code>movie_companies.movie_id =</code> <code>movie_info.movie_id =</code> <code>movie_info_idx.movie_id =</code> <code>movie_keyword.movie_id = movie_link.movie_id</code></p></li>
 <li><p><code>movie_companies.company_id = company_name.id</code></p></li>
 </ul>
+</div>
+<div id="list-of-tables-and-their-variables-in-the-imdb-schema" class="section level3">
+<h3>List of tables and their variables in the <code>IMDB</code> schema:</h3>
+<table style="width:72%;">
+<colgroup>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th>table</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>aka_name</strong></td>
+<td>id</td>
+<td>person_id</td>
+<td>name</td>
+<td>imdb_index</td>
+<td>name_pcode_cf</td>
+<td>name_pcode_nf</td>
+<td>surname_pcode</td>
+<td>md5sum</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>aka_title</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>title</td>
+<td>imdb_index</td>
+<td>kind_id</td>
+<td>production_year</td>
+<td>phonetic_code</td>
+<td>episode_of_id</td>
+<td>season_nr</td>
+<td>episode_nr</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>cast_info</strong></td>
+<td>id</td>
+<td>person_id</td>
+<td>movie_id</td>
+<td>person_role_id</td>
+<td>note</td>
+<td>nr_order</td>
+<td>role_id</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>char_name</strong></td>
+<td>id</td>
+<td>name</td>
+<td>imdb_index</td>
+<td>imdb_id</td>
+<td>name_pcode_nf</td>
+<td>surname_pcode</td>
+<td>md5sum</td>
+</tr>
+<tr class="odd">
+<td><strong>comp_cast_type</strong></td>
+<td>id</td>
+<td>kind<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>company_name</strong></td>
+<td>id</td>
+<td>name</td>
+<td>country_code</td>
+<td>imdb_id</td>
+<td>name_pcode_nf</td>
+<td>name_pcode_sf</td>
+<td>md5sum</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>company_type</strong></td>
+<td>id</td>
+<td>kind<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>complete_cast</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>subject_id</td>
+<td>status_id</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>info_type</strong></td>
+<td>id</td>
+<td>info<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>keyword</strong></td>
+<td>id</td>
+<td>keyword</td>
+<td>phonetic_code</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>kind_type</strong></td>
+<td>id</td>
+<td>kind<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>link_type</strong></td>
+<td>id</td>
+<td>link<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>movie_companies</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>company_id</td>
+<td>company_type_id</td>
+<td>note</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>movie_info</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>info_type_id</td>
+<td>info</td>
+<td>note</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>movie_info_idx</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>info_type_id</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>movie_keyword</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>keyword_id</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>movie_link</strong></td>
+<td>id</td>
+<td>movie_id</td>
+<td>linked_movie_id</td>
+<td>link_type_id</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>name</strong></td>
+<td>id</td>
+<td>name</td>
+<td>imdb_index</td>
+<td>imdb_id</td>
+<td>gender</td>
+<td>name_pcode_cf</td>
+<td>name_pcode_nf</td>
+<td>surname_pcode</td>
+<td>md5sum</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>person_info</strong></td>
+<td>id</td>
+<td>person_id</td>
+<td>info_type_id</td>
+<td>info</td>
+<td>note</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>role_type</strong></td>
+<td>id</td>
+<td>role<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>title</strong></td>
+<td>id</td>
+<td>title</td>
+<td>imdb_index</td>
+<td>kind_id</td>
+<td>production_year</td>
+<td>imdb_id</td>
+<td>phonetic_code</td>
+<td>episode_of_id</td>
+<td>season_nr</td>
+<td>episode_nr</td>
+<td>series_years</td>
+<td>md5sum</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="meaning-behind-each-table-name" class="section level3">
+<h3>Meaning behind each table name</h3>
+<ul>
+<li><strong>aka_name</strong>: alternative name (of a person)</li>
+<li><strong>aka_title</strong>: alternative title (of a movie)</li>
+<li><strong>cast_info</strong>: information about the cast of a movie</li>
+<li><strong>char_name</strong>: information about a character’s name</li>
+<li><strong>comp_cast_type</strong>: the status of completion / confirmation of a cast (?)
+<ul>
+<li>explains what the <code>status_id</code> numbers in <strong>complete_cast</strong> refer to</li>
+</ul></li>
+<li><strong>company_name</strong>: information about the name of the company participating in the development of a movie (?)</li>
+<li><strong>company_type</strong>: the type of company
+<ul>
+<li>explains what the <code>company_type_id</code> numbers in <strong>movie_companies</strong> refer to</li>
+</ul></li>
+<li><strong>complete_cast</strong>: is the cast complete (?) refer to <strong>comp_cast_type</strong> for details</li>
+<li><strong>info_type</strong>: information about movies and actors
+<ul>
+<li>explains what the <code>info_type_id</code> numbers in <strong>movie_info</strong>, <strong>movie_info_idx</strong>, and <strong>person_info</strong> refer to</li>
+</ul></li>
+<li><strong>keyword</strong>: information about search keywords for movies</li>
+<li><strong>kind_type</strong>: types of media
+<ul>
+<li>explains what the <code>kind_id</code> numbers in <strong>titles</strong> refer to;</li>
+</ul></li>
+<li><strong>link_type</strong>: the ways in which movies might be related to one another
+<ul>
+<li>explains what the <code>link_type_id</code> numbers in <strong>movie_link</strong> refer to</li>
+</ul></li>
+<li><strong>movie_companies</strong>: information about movie companies</li>
+<li><strong>movie_info</strong>: movie information and trivia</li>
+<li><strong>movie_info_idx</strong>: movie info index (?)</li>
+<li><strong>movie_keyword</strong>: search keywords associated with movies</li>
+<li><strong>movie_link</strong>: movies that are linked to other movies</li>
+<li><strong>name</strong>: information about actors’ names</li>
+<li><strong>person_info</strong>: information about actors</li>
+<li><strong>role_type</strong>: what role someone had in a cast
+<ul>
+<li>explains what the <code>role_id</code> numbers in <strong>cast_info</strong> refer to</li>
+</ul></li>
+<li><strong>title</strong>: information about the titles of movies</li>
+</ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>cast, crew, complete, complete+verified<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>distributors, production companies, special effects companies, miscellaneous companies<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>runtimes, color info, genres, languages, certificates, sound mix, tech info, countries, taglines, keywords, alternate versions, crazy credits, goofs, soundtrack, quotes, release dates, trivia, locations, mini biography, birth notes, birth date, height, death date, spouse, other works, birth name, salary history, nick names, books, agent address, biographical movies, portrayed in, where now, trade mark, interviews, article, magazine cover photo, pictorial, death notes, LD disc format, LD year, LD digital sound, LD official retail price, LD frequency response, LD pressing plant, LD length, LD language, LD review, LD spaciality, LD release date, LD production country, LD contrast, LD color rendition, LD picture format, LD video noise, LD video artifacts, LD release country, LD sharpness, LD dynamic range, LD audio noise, LD color information, LD group genre, LD quality program, LD close captions-teletext-ld-g, LD category, LD analog left, LD certification, LD audio quality, LD video quality, LD aspect ratio, LD analog right, LD additional information, LD number of chapter stops, LD dialogue intellegibility, LD disc size, LD master format, LD subtitles, LD status of availablility, LD quality of source, LD number of sides, LD video standard, LD supplement, LD original title, LD sound encoding, LD number, LD label, LD catalog number, LD laserdisc title, screenplay-teleplay, novel, adaption, book, production process, protocol, printed media reviews, essays, other literature, mpaa, plot, votes distribution, votes, rating, production dates, copyright holder, filming dates, budget, weekend gross, gross, opening weekend, rentals, admissions, studios, top 250 rank, bottom 10 rank<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>movie, tv series, tv movie, video movie, tv mini series, video game, episode<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>follows, followed by, remake of, remade as, references, referenced in, spoofs, spoofed in, features, featured in, spin off from, spin off, version of, similar to, edited into, edited from, alternate language version of, unknown link<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>actor, actress, producer, writer, cinematographer, composer, costume designer, director, editor, miscellaneous crew, production designer, guest<a href="#fnref6">↩</a></p></li>
+</ol>
+</div>
 
 
 

@@ -1,11 +1,11 @@
 ---
 title: "Helper"
-author: "Ha Cao"
+author: "Ha Cao, Cathy Lee"
 date: "April 27, 2018"
 output: html_document
 ---
 
-Here are some common variables between tables in IMDB schema:
+###Some common variables between tables in the `IMDB` schema
 
 * `name.id = cast_info.person_id`
 
@@ -26,3 +26,64 @@ Here are some common variables between tables in IMDB schema:
 
 * `movie_companies.company_id = company_name.id`
 
+###List of tables and their variables in the `IMDB` schema:
+
+|table| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|**aka_name**|id|person_id|name|imdb_index|name_pcode_cf|name_pcode_nf|surname_pcode|md5sum|
+|**aka_title**|id|movie_id|title|imdb_index|kind_id|production_year|phonetic_code|episode_of_id|season_nr|episode_nr|
+|**cast_info**|id|person_id|movie_id|person_role_id|note|nr_order|role_id|
+|**char_name**|id|name|imdb_index|imdb_id|name_pcode_nf|surname_pcode|md5sum
+|**comp_cast_type**|id|kind[^compcasttype]|
+|**company_name**|id|name|country_code|imdb_id|name_pcode_nf|name_pcode_sf|md5sum|
+|**company_type**|id|kind[^companytype]|
+|**complete_cast**|id|movie_id|subject_id|status_id|
+|**info_type**|id|info[^infotype]|
+|**keyword**|id|keyword|phonetic_code|
+|**kind_type**|id|kind[^kindtype]|
+|**link_type**|id|link[^linktype]|
+|**movie_companies**|id|movie_id|company_id|company_type_id|note|
+|**movie_info**|id|movie_id|info_type_id|info|note|
+|**movie_info_idx**|id|movie_id|info_type_id|
+|**movie_keyword**|id|movie_id|keyword_id|
+|**movie_link**|id|movie_id|linked_movie_id|link_type_id|
+|**name**|id|name|imdb_index|imdb_id|gender|name_pcode_cf|name_pcode_nf|surname_pcode|md5sum|
+|**person_info**|id|person_id|info_type_id|info|note|
+|**role_type**|id|role[^roletype]|
+|**title**|id|title|imdb_index|kind_id|production_year|imdb_id|phonetic_code|episode_of_id|season_nr|episode_nr|series_years|md5sum|
+
+### Meaning behind each table name
+* **aka_name**: alternative name (of a person)
+* **aka_title**: alternative title (of a movie)
+* **cast_info**: information about the cast of a movie
+* **char_name**: information about a character's name
+* **comp_cast_type**: the status of completion / confirmation of a cast (?)
+    - explains what the `status_id` numbers in **complete_cast** refer to
+* **company_name**: information about the name of the company participating in the development of a movie (?)
+* **company_type**: the type of company
+    - explains what the `company_type_id` numbers in **movie_companies** refer to
+* **complete_cast**: is the cast complete (?) refer to **comp_cast_type** for details
+* **info_type**: information about movies and actors
+    - explains what the `info_type_id` numbers in **movie_info**, **movie_info_idx**, and **person_info** refer to
+* **keyword**: information about search keywords for movies
+* **kind_type**: types of media
+    - explains what the `kind_id` numbers in **titles** refer to; 
+* **link_type**: the ways in which movies might be related to one another
+    - explains what the `link_type_id` numbers in **movie_link** refer to
+* **movie_companies**: information about movie companies
+* **movie_info**: movie information and trivia
+* **movie_info_idx**: movie info index (?)
+* **movie_keyword**: search keywords associated with movies
+* **movie_link**: movies that are linked to other movies
+* **name**: information about actors' names
+* **person_info**: information about actors
+* **role_type**: what role someone had in a cast
+    - explains what the `role_id` numbers in **cast_info** refer to
+* **title**: information about the titles of movies
+
+[^compcasttype]: cast, crew, complete, complete+verified
+[^companytype]: distributors, production companies, special effects companies, miscellaneous companies
+[^infotype]: runtimes, color info, genres, languages, certificates, sound mix, tech info, countries, taglines, keywords, alternate versions, crazy credits, goofs, soundtrack, quotes, release dates, trivia, locations, mini biography, birth notes, birth date, height, death date, spouse, other works, birth name, salary history, nick names, books, agent address, biographical movies, portrayed in, where now, trade mark, interviews, article, magazine cover photo, pictorial, death notes, LD disc format, LD year, LD digital sound, LD official retail price, LD frequency response, LD pressing plant, LD length, LD language, LD review, LD spaciality, LD release date, LD production country, LD contrast, LD color rendition, LD picture format, LD video noise, LD video artifacts, LD release country, LD sharpness, LD dynamic range, LD audio noise, LD color information, LD group genre, LD quality program, LD close captions-teletext-ld-g, LD category, LD analog left, LD certification, LD audio quality, LD video quality, LD aspect ratio, LD analog right, LD additional information, LD number of chapter stops, LD dialogue intellegibility, LD disc size, LD master format, LD subtitles, LD status of availablility, LD quality of source, LD number of sides, LD video standard, LD supplement, LD original title, LD sound encoding, LD number, LD label, LD catalog number, LD laserdisc title, screenplay-teleplay, novel, adaption, book, production process, protocol, printed media reviews, essays, other literature, mpaa, plot, votes distribution, votes, rating, production dates, copyright holder, filming dates, budget, weekend gross, gross, opening weekend, rentals, admissions, studios, top 250 rank, bottom 10 rank
+[^kindtype]: movie, tv series, tv movie, video movie, tv mini series, video game, episode
+[^linktype]: follows, followed by, remake of, remade as, references, referenced in, spoofs, spoofed in, features, featured in, spin off from, spin off, version of, similar to, edited into, edited from, alternate language version of, unknown link
+[^roletype]: actor, actress, producer, writer, cinematographer, composer, costume designer, director, editor, miscellaneous crew, production designer, guest
