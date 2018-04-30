@@ -19,3 +19,33 @@ db <- dbConnect_scidb(dbname = "imdb")
 ```
 
 [^github]: https://github.com/cathyleee/sds192-mp4
+
+
+
+
+```{r}
+sql_budget <- "SELECT t.id, t.title, t.production_year, mii.info AS genre,
+ mii2.info AS budget, 
+cn.name AS company
+FROM title t 
+JOIN movie_info mii ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE t.kind_id = 1
+  AND mii.info_type_id = 3
+  AND mii2.info_type_id = 105
+  AND mii2.info LIKE '$%'
+  AND cn.country_code = '[us]'
+ORDER BY mii2.info desc;
+"
+
+db %>%
+  dbGetQuery(sql_budget)
+```
+
+
+
+
+
+
