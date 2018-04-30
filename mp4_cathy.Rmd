@@ -1,0 +1,48 @@
+---
+title: "mp4_cathy"
+author: "Cathy Lee"
+date: "29 April 2018"
+output: html_document
+---
+
+```{r Setup, message=FALSE, warning=FALSE}
+# Set up the environment
+library(mdsr)
+library(RMySQL)
+# Available databases: airlines, citibike, fec, imdb, lahman, nyctaxi
+db <- dbConnect_scidb(dbname = "imdb")
+```
+
+```{r}
+sql <- "
+SELECT t.title, mi.info AS country, mi2.info AS budget
+FROM title t
+JOIN movie_info mi ON mi.id = t.id
+JOIN movie_info mi2 ON mi2.id = t.id
+WHERE mi.info_type_id = 8
+  AND mi.info = 'USA'
+  AND mi2.info_type_id = 105
+ORDER BY mi2.info desc;
+"
+
+sql <- "
+SELECT t.title, mi.info AS country
+FROM title t
+JOIN movie_info mi ON mi.id = t.id
+WHERE mi.info_type_id = 8
+  AND mi.info = 'USA'
+"
+```
+
+```{r}
+sql <- "
+SELECT mi.id, mi.info AS country, mi2.info AS budget
+FROM movie_info mi
+JOIN movie_info mi2 ON mi2.id = mi.id
+WHERE mi.info_type_id = 8
+  AND mi.info = 'USA';
+"
+
+biggest_budget <- db %>% 
+  dbGetQuery(sql)
+```

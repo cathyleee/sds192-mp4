@@ -18,11 +18,6 @@ library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
-[^github]: https://github.com/cathyleee/sds192-mp4
-
-
-
-
 ```{r}
 sql_budget <- "SELECT t.id, t.title, t.production_year, mii.info AS genre,
  mii2.info AS budget, 
@@ -44,6 +39,8 @@ db %>%
   dbGetQuery(sql_budget)
 ```
 
+
+[^github]: https://github.com/cathyleee/sds192-mp4
 
 
 
