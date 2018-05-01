@@ -16,13 +16,62 @@ db <- dbConnect_scidb(dbname = "imdb")
 # Get the table from SQL
 # by joining cast_info, person_info, movie_info, and movie_info_idx
 q1 <- "
-SELECT ci.movie_id, ci.person_role_id, pi.person_id, pi.info_type_id, pi.info, mi.info_type_id, mi.info, mii.info_type_id, mii.info
-FROM cast_info ci
-JOIN person_info pi ON pi.person_id = ci.person_id
-JOIN movie_info mi ON mi.movie_id = ci.movie_id
-JOIN movie_info_idx mii ON mii.movie_id = ci.movie_id;
+SELECT t.id, t.title, t.production_year, mii.info AS genre,
+mii2.info AS budget, mii3.info AS gross, cn.name AS company
+FROM title t 
+JOIN movie_info mii ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN movie_info mii3 ON mii3.movie_id = t.id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE t.kind_id = 1
+ AND mii.info_type_id = 3
+ AND mii2.info_type_id = 105
+ AND mii2.info LIKE '$%'
+ AND mii3.info_type_id = 107
+ AND cn.country_code = '[us]'
+ AND production_year > 1980
+ AND mii3.info LIKE '%(USA)'
+ORDER BY mii2.info desc;
 "
 movies_all_info <- db %>%
   dbGetQuery(q1)
+```
+
+```{r}
+movies_all_info <- movies_all_info %>%
+  group_by(id) %>%
+  summarize(title = first(title),
+            production_year = first(production_year),
+            genre = first(genre),
+            budget = first(budget),
+            gross = first(gross),
+            company = first(company))
+```
+
+```{r}
+q2 <- "
+SELECT ci.movie_id, ci.person_role_id AS char_id, pi.person_id, 
+n.gender, rt.role 
+FROM cast_info ci
+JOIN person_info pi ON pi.person_id = ci.person_id
+JOIN movie_info mii ON mii.movie_id = ci.movie_id
+JOIN title t ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN name n ON n.id = ci.person_id
+JOIN role_type rt ON rt.id = ci.role_id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE mii.info_type_id = 105
+ AND mii.info LIKE '$%'
+ AND mii2.info_type_id = 107
+ AND cn.country_code = '[us]'
+ AND t.production_year > 1980
+ AND mii2.info LIKE '%(USA)'
+ AND t.kind_id = 1
+ORDER BY mii.info DESC;
+"
+actors_info <- db %>%
+  dbGetQuery(q2)
 ```
 
