@@ -1,0 +1,28 @@
+---
+title: "Test Out"
+author: "Ha Cao"
+date: "April 29, 2018"
+output: html_document
+---
+```{r Setup, message=FALSE, warning=FALSE}
+# Set up the environment
+library(mdsr)
+library(RMySQL)
+# Available databases: airlines, citibike, fec, imdb, lahman, nyctaxi
+db <- dbConnect_scidb(dbname = "imdb")
+```
+
+```{r}
+# Get the table from SQL
+# by joining cast_info, person_info, movie_info, and movie_info_idx
+q1 <- "
+SELECT ci.movie_id, ci.person_role_id, pi.person_id, pi.info_type_id, pi.info, mi.info_type_id, mi.info, mii.info_type_id, mii.info
+FROM cast_info ci
+JOIN person_info pi ON pi.person_id = ci.person_id
+JOIN movie_info mi ON mi.movie_id = ci.movie_id
+JOIN movie_info_idx mii ON mii.movie_id = ci.movie_id;
+"
+movies_all_info <- db %>%
+  dbGetQuery(q1)
+```
+
