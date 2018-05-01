@@ -18,4 +18,39 @@ library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
+```{r}
+# Tables used: movie_info, movie_companies, company_name, cast_info
+# Filters for movies made by US companies, and displays the genre and budget of a movie, and the person's role
+
+sql_budget <- "
+SELECT t.id, t.title, t.production_year, mii.info AS genre,
+ mii2.info AS budget, cn.name AS company, ci.person_role_id AS role
+FROM title t 
+JOIN movie_info mii ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+JOIN cast_info ci ON ci.movie_id = t.id
+WHERE t.kind_id = 1
+  AND mii.info_type_id = 3
+  AND mii.info = 'Comedy'
+  AND mii2.info_type_id = 105
+  AND mii2.info LIKE '$%'
+  AND cn.country_code = '[us]'
+  AND person_role_id IN (1, 2, 8)
+ORDER BY mii2.info desc;
+"
+
+db %>%
+  dbGetQuery(sql_budget)
+
+# To-do: do the same thing for other genres (Romance, Drama, and Action) - check with Ben whether we can use R functions with SQL syntax (replacing the genre with the function parameter)
+```
+
+
 [^github]: https://github.com/cathyleee/sds192-mp4
+
+
+
+
+
