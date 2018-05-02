@@ -14,35 +14,108 @@ db <- dbConnect_scidb(dbname = "imdb")
 ```
 
 ```{r}
-sql <- "
-SELECT t.title, mi.info AS country, mi2.info AS budget
-FROM title t
-JOIN movie_info mi ON mi.id = t.id
-JOIN movie_info mi2 ON mi2.id = t.id
-WHERE mi.info_type_id = 8
-  AND mi.info = 'USA'
-  AND mi2.info_type_id = 105
-ORDER BY mi2.info desc;
+# Get the table from SQL
+# by joining cast_info, person_info, movie_info, and movie_info_idx
+q1 <- "
+SELECT t.id, t.title, t.production_year, mii.info AS genre,
+mii2.info AS budget, mii3.info AS gross, cn.name AS company
+FROM title t 
+JOIN movie_info mii ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN movie_info mii3 ON mii3.movie_id = t.id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE t.kind_id = 1
+ AND mii.info_type_id = 3
+ AND mii2.info_type_id = 105
+ AND mii2.info LIKE '$%'
+ AND mii3.info_type_id = 107
+ AND cn.country_code = '[us]'
+ AND production_year > 1980
+ AND mii3.info LIKE '%(USA)'
+ORDER BY mii2.info desc;
 "
-
-sql <- "
-SELECT t.title, mi.info AS country
-FROM title t
-JOIN movie_info mi ON mi.id = t.id
-WHERE mi.info_type_id = 8
-  AND mi.info = 'USA'
-"
+movies_all_info <- db %>%
+  dbGetQuery(q1)
 ```
 
 ```{r}
-sql <- "
-SELECT mi.id, mi.info AS country, mi2.info AS budget
-FROM movie_info mi
-JOIN movie_info mi2 ON mi2.id = mi.id
-WHERE mi.info_type_id = 8
-  AND mi.info = 'USA';
-"
+movies_short <- movies_all_info %>%
+  group_by(id) %>%
+  summarize(title = first(title),
+            production_year = first(production_year),
+            genre = first(genre),
+            budget = first(budget),
+            gross = first(gross),
+            company = first(company))
+```
 
-biggest_budget <- db %>% 
-  dbGetQuery(sql)
+```{r}
+q2 <- "
+SELECT ci.movie_id, ci.person_role_id AS char_id, 
+n.gender, rt.role 
+FROM cast_info ci
+JOIN movie_info mii ON mii.movie_id = ci.movie_id
+JOIN title t ON mii.movie_id = t.id
+JOIN movie_info mii2 ON mii2.movie_id = t.id
+JOIN name n ON n.id = ci.person_id
+JOIN role_type rt ON rt.id = ci.role_id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE mii.info_type_id = 105
+ AND mii.info LIKE '$%'
+ AND mii2.info_type_id = 107
+ AND cn.country_code = '[us]'
+ AND t.production_year > 1980
+ AND mii2.info LIKE '%(USA)'
+ AND t.kind_id = 1
+ORDER BY mii.info DESC;
+"
+actors_info <- db %>%
+  dbGetQuery(q2)
+```
+
+```{r}
+actors_short <- actors_info %>%
+  mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
+  group_by(movie_id, role_in_movie) %>%
+  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
+            num_female = sum(ifelse(gender == 'f', 1, 0))) %>%
+  drop_na() %>%
+  mutate(total = num_male + num_female) %>%
+  mutate(prop_female = num_female/total,
+         prop_male = 1 - prop_female)
+```
+
+```{r}
+actors_general <- actors_info %>%
+  drop_na() %>%
+  group_by(movie_id) %>%
+  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
+            num_female = sum(ifelse(gender == "f", 1, 0))) %>%
+  mutate(total = num_male + num_female) %>%
+  mutate(prop_female = num_female/total,
+         prop_male = 1 - prop_female) 
+```
+
+```{r calculating gender props for each genre}
+genre_info <- actors_general %>%
+  inner_join(movies_short, by = c("movie_id" = "id")) %>%
+  group_by(genre) %>%
+  summarise(genre_prop_female = sum(num_female)/(sum(num_female)+sum(num_male)),
+            genre_prop_male = sum(num_male)/(sum(num_female)+sum(num_male))) %>%
+  mutate(prop_total = genre_prop_female + genre_prop_male)
+```
+
+```{r DISCARD}
+genre_info <- actors_general %>%
+  inner_join(movies_short, by = c("movie_id" = "id")) %>%
+  group_by(movie_id, genre, prop_female, prop_male) %>%
+  summarise(prop_total = sum(prop_female + prop_male))
+```
+
+```{r Plot the prop of males and females according to genre}
+genre_plot <- genre_info %>% 
+  ggplot(aes(x=genre)) +
+  geom_bar(aes(fill=genre))
 ```
