@@ -8,6 +8,7 @@ output: html_document
 # set up the environment
 library(mdsr)
 library(RMySQL)
+library(tidyverse)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
@@ -80,6 +81,7 @@ crew_info <- db %>%
 crew_total <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
+  drop_na(gender) %>%
   summarize(total = n()) %>%
   group_by(role_in_movie) %>%
   summarize(total = sum(total))
@@ -89,37 +91,40 @@ crew_short <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie, gender) %>%
   summarize(num = n()) %>%
-  drop_na() %>%
+  drop_na(gender) %>%
   group_by(role_in_movie, gender) %>%
   summarize(total_by_gender = sum(num)) %>%
   inner_join(crew_total, by = "role_in_movie") %>%
-  mutate(prop = total_by_gender/total)
+  mutate(prop = total_by_gender/total) %>%
+  group_by(role_in_movie) %>%
+  mutate(prop_female = first(prop))
 ```
 
 ```{r}
 # a table that has a total number of people as a column
 # in order to join with crew_short later
 crew_total_2 <- crew_info %>%
-  drop_na() %>%
   group_by(movie_id, gender) %>%
   summarize(total = n()) %>%
+  drop_na(gender) %>%
   group_by(movie_id) %>%
   summarize(total = sum(total))
 
 # general info about gender distribution for each movie
 crew_general <- crew_info %>%
-  drop_na() %>%
   group_by(movie_id, gender) %>%
   summarize(num = n()) %>%
+  drop_na(gender) %>%
   inner_join(crew_total_2, by = "movie_id") %>%
   mutate(prop = num/total)
 ```
 
 ```{r}
-# group by role in movie in order to make a graph comparing gender ratio in each part of the crew
-role_gender_ratio <- crew_short %>%
-  group_by(role_in_movie) %>%
-  summarize(prop_male = mean(prop_male),
-            prop_female = mean(prop_female))
+# create a stacked bar chart for different roles in movies
+ggplot(data = crew_short, aes(x = reorder(role_in_movie, prop_female), y = prop, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_x_discrete(name = "Role in the Crew") +
+  scale_y_continuous(name = "Percentage", labels = scales::percent) +
+  coord_flip()
 ```
 
