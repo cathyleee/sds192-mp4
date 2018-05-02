@@ -4,7 +4,7 @@ author: "Ha Cao"
 date: "April 29, 2018"
 output: html_document
 ---
-```{r Setup, message=FALSE, warning=FALSE}
+```{r Setup, message = FALSE, warning = FALSE}
 # Set up the environment
 library(mdsr)
 library(RMySQL)
@@ -39,7 +39,7 @@ movies_all_info <- db %>%
 ```
 
 ```{r}
-movies_all_info <- movies_all_info %>%
+movies_short <- movies_all_info %>%
   group_by(id) %>%
   summarize(title = first(title),
             production_year = first(production_year),
@@ -51,10 +51,9 @@ movies_all_info <- movies_all_info %>%
 
 ```{r}
 q2 <- "
-SELECT ci.movie_id, ci.person_role_id AS char_id, pi.person_id, 
+SELECT ci.movie_id, ci.person_role_id AS char_id, 
 n.gender, rt.role 
 FROM cast_info ci
-JOIN person_info pi ON pi.person_id = ci.person_id
 JOIN movie_info mii ON mii.movie_id = ci.movie_id
 JOIN title t ON mii.movie_id = t.id
 JOIN movie_info mii2 ON mii2.movie_id = t.id
@@ -73,5 +72,28 @@ ORDER BY mii.info DESC;
 "
 actors_info <- db %>%
   dbGetQuery(q2)
+```
+
+```{r}
+actors_short <- actors_info %>%
+  mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
+  group_by(movie_id, role_in_movie) %>%
+  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
+            num_female = sum(ifelse(gender == 'f', 1, 0))) %>%
+  drop_na() %>%
+  mutate(total = num_male + num_female) %>%
+  mutate(prop_female = num_female/total,
+         prop_male = 1 - prop_female)
+```
+
+```{r}
+actors_general <- actors_info %>%
+  drop_na() %>%
+  group_by(movie_id) %>%
+  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
+            num_female = sum(ifelse(gender == "f", 1, 0))) %>%
+  mutate(total = num_male + num_female) %>%
+  mutate(prop_female = num_female/total,
+         prop_male = 1 - prop_female) 
 ```
 
