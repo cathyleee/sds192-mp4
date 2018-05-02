@@ -81,6 +81,7 @@ crew_info <- db %>%
 crew_total <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
+  drop_na(gender) %>%
   summarize(total = n()) %>%
   group_by(role_in_movie) %>%
   summarize(total = sum(total))
@@ -90,28 +91,30 @@ crew_short <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie, gender) %>%
   summarize(num = n()) %>%
-  drop_na() %>%
+  drop_na(gender) %>%
   group_by(role_in_movie, gender) %>%
   summarize(total_by_gender = sum(num)) %>%
   inner_join(crew_total, by = "role_in_movie") %>%
-  mutate(prop = total_by_gender/total)
+  mutate(prop = total_by_gender/total) %>%
+  group_by(role_in_movie) %>%
+  mutate(prop_female = first(prop))
 ```
 
 ```{r}
 # a table that has a total number of people as a column
 # in order to join with crew_short later
 crew_total_2 <- crew_info %>%
-  drop_na() %>%
   group_by(movie_id, gender) %>%
   summarize(total = n()) %>%
+  drop_na(gender) %>%
   group_by(movie_id) %>%
   summarize(total = sum(total))
 
 # general info about gender distribution for each movie
 crew_general <- crew_info %>%
-  drop_na() %>%
   group_by(movie_id, gender) %>%
   summarize(num = n()) %>%
+  drop_na(gender) %>%
   inner_join(crew_total_2, by = "movie_id") %>%
   mutate(prop = num/total)
 ```
@@ -119,13 +122,13 @@ crew_general <- crew_info %>%
 ```{r Join genre and gender proportions}
 genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
-  group_by(genre) %>% 
-  select(genre, gender, prop) 
+  group_by(genre) %>%
+  mutate(prop_female = first(prop))
 ```
 
 ```{r Plot the prop of males and females according to genre}
 genre_plot <- genre_info %>% 
-  ggplot(aes(x=genre, y = prop, fill=gender)) +
+  ggplot(aes(x=reorder(genre, prop_female), y=prop, fill=gender)) +
   geom_bar(position="fill", stat="identity") +
   scale_x_discrete(name="Genre") + 
   scale_y_continuous(name="Percentage", labels = scales::percent) +
