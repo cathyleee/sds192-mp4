@@ -121,7 +121,7 @@ crew_general <- crew_info %>%
 
 ```{r}
 # create a stacked bar chart for different roles in movies
-ggplot(data = crew_short, aes(x = reorder(role_in_movie, prop_female), y = prop, fill = gender)) +
+ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_x_discrete(name = "Role in the Crew") +
   scale_y_continuous(name = "Percentage", labels = scales::percent) +
