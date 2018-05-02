@@ -70,32 +70,56 @@ WHERE mii.info_type_id = 105
  AND t.kind_id = 1
 ORDER BY mii.info DESC;
 "
-actors_info <- db %>%
+crew_info <- db %>%
   dbGetQuery(q2)
 ```
 
 ```{r}
-# specific info about gender distribution within each part of the crew for each movie
-actors_short <- actors_info %>%
+# a table that has a total number of people as a column
+# in order to join with crew_short later
+crew_total <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
-  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
-            num_female = sum(ifelse(gender == 'f', 1, 0))) %>%
+  summarize(total = n()) %>%
+  group_by(role_in_movie) %>%
+  summarize(total = sum(total))
+
+# specific info about gender distribution within each part of the crew for each moviec
+crew_short <- crew_info %>%
+  mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
+  group_by(movie_id, role_in_movie, gender) %>%
+  summarize(num = n()) %>%
   drop_na() %>%
-  mutate(total = num_male + num_female) %>%
-  mutate(prop_female = num_female/total,
-         prop_male = 1 - prop_female)
+  group_by(role_in_movie, gender) %>%
+  summarize(total_by_gender = sum(num)) %>%
+  inner_join(crew_total, by = "role_in_movie") %>%
+  mutate(prop = total_by_gender/total)
 ```
 
 ```{r}
-# general info about gender distribution for each movie
-actors_general <- actors_info %>%
+# a table that has a total number of people as a column
+# in order to join with crew_short later
+crew_total_2 <- crew_info %>%
   drop_na() %>%
+  group_by(movie_id, gender) %>%
+  summarize(total = n()) %>%
   group_by(movie_id) %>%
-  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
-            num_female = sum(ifelse(gender == "f", 1, 0))) %>%
-  mutate(total = num_male + num_female) %>%
-  mutate(prop_female = num_female/total,
-         prop_male = 1 - prop_female) 
+  summarize(total = sum(total))
+
+# general info about gender distribution for each movie
+crew_general <- crew_info %>%
+  drop_na() %>%
+  group_by(movie_id, gender) %>%
+  summarize(num = n()) %>%
+  inner_join(crew_total_2, by = "movie_id") %>%
+  mutate(prop = num/total)
+```
+
+```{r}
+# group by role in movie in order to make a graph comparing gender ratio in each part of the crew
+role_gender_ratio <- crew_short %>%
+  group_by(role_in_movie) %>%
+  summarize(prop_male = mean(prop_male),
+            prop_female = mean(prop_female))
 ```
 
