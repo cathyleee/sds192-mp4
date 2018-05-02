@@ -76,29 +76,63 @@ crew_info <- db %>%
 ```
 
 ```{r}
-crew_short <- crew_info %>%
+# a table that has a total number of people as a column
+# in order to join with crew_short later
+crew_total <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
-  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
-            num_female = sum(ifelse(gender == 'f', 1, 0))) %>%
+  summarize(total = n()) %>%
+  group_by(role_in_movie) %>%
+  summarize(total = sum(total))
+
+# specific info about gender distribution within each part of the crew for each moviec
+crew_short <- crew_info %>%
+  mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
+  group_by(movie_id, role_in_movie, gender) %>%
+  summarize(num = n()) %>%
   drop_na() %>%
-  mutate(total = num_male + num_female) %>%
-  mutate(prop_female = num_female/total,
-         prop_male = 1 - prop_female)
+  group_by(role_in_movie, gender) %>%
+  summarize(total_by_gender = sum(num)) %>%
+  inner_join(crew_total, by = "role_in_movie") %>%
+  mutate(prop = total_by_gender/total)
 ```
 
 ```{r}
+# a table that has a total number of people as a column
+# in order to join with crew_short later
+crew_total_2 <- crew_info %>%
+  drop_na() %>%
+  group_by(movie_id, gender) %>%
+  summarize(total = n()) %>%
+  group_by(movie_id) %>%
+  summarize(total = sum(total))
+
+# general info about gender distribution for each movie
 crew_general <- crew_info %>%
   drop_na() %>%
-  group_by(movie_id) %>%
-  summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
-            num_female = sum(ifelse(gender == "f", 1, 0))) %>%
-  mutate(total = num_male + num_female) %>%
-  mutate(prop_female = num_female/total,
-         prop_male = 1 - prop_female) 
+  group_by(movie_id, gender) %>%
+  summarize(num = n()) %>%
+  inner_join(crew_total_2, by = "movie_id") %>%
+  mutate(prop = num/total)
 ```
 
-```{r calculating gender props for each genre}
+```{r Join genre and gender proportions}
+genre_info <- crew_general %>%
+  inner_join(movies_short, by = c("movie_id" = "id")) %>%
+  group_by(genre) %>% 
+  select(genre, gender, prop) 
+```
+
+```{r Plot the prop of males and females according to genre}
+genre_plot <- genre_info %>% 
+  ggplot(aes(x=genre, y = prop, fill=gender)) +
+  geom_bar(position="fill", stat="identity") +
+  scale_x_discrete(name="Genre") + 
+  scale_y_continuous(name="Percentage", labels = scales::percent) +
+  coord_flip()
+```
+
+```{r OLD CODE, eval=FALSE, include=FALSE}
 genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
   group_by(genre) %>%
@@ -107,15 +141,9 @@ genre_info <- crew_general %>%
   mutate(prop_total = genre_prop_female + genre_prop_male)
 ```
 
-```{r DISCARD}
+```{r DISCARD, eval=FALSE, include=FALSE}
 genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
   group_by(movie_id, genre, prop_female, prop_male) %>%
   summarise(prop_total = sum(prop_female + prop_male))
-```
-
-```{r Plot the prop of males and females according to genre}
-genre_plot <- genre_info %>% 
-  ggplot(aes(x=genre)) +
-  geom_bar(aes(fill=genre))
 ```
