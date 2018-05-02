@@ -5,16 +5,14 @@ date: "April 29, 2018"
 output: html_document
 ---
 ```{r Setup, message = FALSE, warning = FALSE}
-# Set up the environment
+# set up the environment
 library(mdsr)
 library(RMySQL)
-# Available databases: airlines, citibike, fec, imdb, lahman, nyctaxi
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
 ```{r}
-# Get the table from SQL
-# by joining cast_info, person_info, movie_info, and movie_info_idx
+# query to get basic information about the movies
 q1 <- "
 SELECT t.id, t.title, t.production_year, mii.info AS genre,
 mii2.info AS budget, mii3.info AS gross, cn.name AS company
@@ -39,6 +37,7 @@ movies_all_info <- db %>%
 ```
 
 ```{r}
+# basic info about each movie
 movies_short <- movies_all_info %>%
   group_by(id) %>%
   summarize(title = first(title),
@@ -50,6 +49,7 @@ movies_short <- movies_all_info %>%
 ```
 
 ```{r}
+# query to get information about personnel of the movies
 q2 <- "
 SELECT ci.movie_id, ci.person_role_id AS char_id, 
 n.gender, rt.role 
@@ -75,6 +75,7 @@ actors_info <- db %>%
 ```
 
 ```{r}
+# specific info about gender distribution within each part of the crew for each movie
 actors_short <- actors_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
@@ -87,6 +88,7 @@ actors_short <- actors_info %>%
 ```
 
 ```{r}
+# general info about gender distribution for each movie
 actors_general <- actors_info %>%
   drop_na() %>%
   group_by(movie_id) %>%
