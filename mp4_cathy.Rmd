@@ -71,12 +71,12 @@ WHERE mii.info_type_id = 105
  AND t.kind_id = 1
 ORDER BY mii.info DESC;
 "
-actors_info <- db %>%
+crew_info <- db %>%
   dbGetQuery(q2)
 ```
 
 ```{r}
-actors_short <- actors_info %>%
+crew_short <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie) %>%
   summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
@@ -88,7 +88,7 @@ actors_short <- actors_info %>%
 ```
 
 ```{r}
-actors_general <- actors_info %>%
+crew_general <- crew_info %>%
   drop_na() %>%
   group_by(movie_id) %>%
   summarize(num_male = sum(ifelse(gender == "m", 1, 0)),
@@ -99,7 +99,7 @@ actors_general <- actors_info %>%
 ```
 
 ```{r calculating gender props for each genre}
-genre_info <- actors_general %>%
+genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
   group_by(genre) %>%
   summarise(genre_prop_female = sum(num_female)/(sum(num_female)+sum(num_male)),
@@ -108,7 +108,7 @@ genre_info <- actors_general %>%
 ```
 
 ```{r DISCARD}
-genre_info <- actors_general %>%
+genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
   group_by(movie_id, genre, prop_female, prop_male) %>%
   summarise(prop_total = sum(prop_female + prop_male))
