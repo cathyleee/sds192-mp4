@@ -122,6 +122,8 @@ crew_general <- crew_info %>%
 ```{r Join genre and gender proportions}
 genre_info <- crew_general %>%
   inner_join(movies_short, by = c("movie_id" = "id")) %>%
+  group_by(genre, gender) %>%
+  summarise(prop = mean(prop)) %>%
   group_by(genre) %>%
   mutate(prop_female = first(prop))
 ```
@@ -133,6 +135,7 @@ genre_plot <- genre_info %>%
   scale_x_discrete(name="Genre") + 
   scale_y_continuous(name="Percentage", labels = scales::percent) +
   coord_flip()
+genre_plot
 ```
 
 ```{r OLD CODE, eval=FALSE, include=FALSE}
