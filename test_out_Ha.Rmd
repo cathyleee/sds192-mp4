@@ -9,14 +9,17 @@ output: html_document
 library(mdsr)
 library(RMySQL)
 library(tidyverse)
+library(ggpubr)
+theme_set(theme_pubr())
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
 ```{r}
 # query to get basic information about the movies
+# including movie ID, title, production year, genre, budget, and gross revenue in the US
 q1 <- "
 SELECT t.id, t.title, t.production_year, mii.info AS genre,
-mii2.info AS budget, mii3.info AS gross, cn.name AS company
+mii2.info AS budget, mii3.info AS gross
 FROM title t 
 JOIN movie_info mii ON mii.movie_id = t.id
 JOIN movie_info mii2 ON mii2.movie_id = t.id
@@ -38,15 +41,23 @@ movies_all_info <- db %>%
 ```
 
 ```{r}
-# basic info about each movie
-movies_short <- movies_all_info %>%
-  group_by(id) %>%
+# top 10 most popular genres (most movies listed in that genre)
+top_genres <- movies_all_info %>%
+  group_by(genre) %>%
+  summarize(num_movies = n()) %>%
+  arrange(desc(num_movies)) %>%
+  head(10)
+```
+
+```{r}
+# filter out top 10 genres
+top_genres_info <- movies_all_info %>% 
+  filter(genre %in% c("Drama", "Comedy", "Thriller", "Action", "Adventure", "Crime", "Romance", "Sci-Fi", "Fantasy", "Horror")) %>%
+  group_by(genre, id) %>%
   summarize(title = first(title),
             production_year = first(production_year),
-            genre = first(genre),
             budget = first(budget),
-            gross = first(gross),
-            company = first(company))
+            gross = first(gross))
 ```
 
 ```{r}
@@ -86,7 +97,7 @@ crew_total <- crew_info %>%
   group_by(role_in_movie) %>%
   summarize(total = sum(total))
 
-# specific info about gender distribution within each part of the crew for each moviec
+# specific info about gender distribution within each role of the crew for each movie
 crew_short <- crew_info %>%
   mutate(role_in_movie = ifelse(role %in% c("actor", "actress"), "actor/actress", role)) %>%
   group_by(movie_id, role_in_movie, gender) %>%
@@ -101,8 +112,9 @@ crew_short <- crew_info %>%
 ```
 
 ```{r}
+# codes for the whole crew in general
 # a table that has a total number of people as a column
-# in order to join with crew_short later
+# in order to join with crew_general later
 crew_total_2 <- crew_info %>%
   group_by(movie_id, gender) %>%
   summarize(total = n()) %>%
@@ -110,12 +122,34 @@ crew_total_2 <- crew_info %>%
   group_by(movie_id) %>%
   summarize(total = sum(total))
 
-# general info about gender distribution for each movie
+# general info about gender distribution (all roles together) for each movie
 crew_general <- crew_info %>%
   group_by(movie_id, gender) %>%
   summarize(num = n()) %>%
   drop_na(gender) %>%
   inner_join(crew_total_2, by = "movie_id") %>%
+  mutate(prop = num/total)
+```
+
+```{r}
+# codes for actors/actresses specifically
+# a table that has a total number of people as a column
+# in order to join with crew_general_acting later
+crew_total_acting <- crew_info %>%
+  filter(role %in% c("actor", "actress")) %>%
+  group_by(movie_id, gender) %>%
+  summarize(total = n()) %>%
+  drop_na(gender) %>%
+  group_by(movie_id) %>%
+  summarize(total = sum(total))
+
+# general info about gender distribution of actors/actresses for each movie
+crew_general_acting <- crew_info %>%
+  filter(role %in% c("actor", "actress")) %>%
+  group_by(movie_id, gender) %>%
+  summarize(num = n()) %>%
+  drop_na(gender) %>%
+  inner_join(crew_total_acting, by = "movie_id") %>%
   mutate(prop = num/total)
 ```
 
@@ -126,5 +160,55 @@ ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop
   scale_x_discrete(name = "Role in the Crew") +
   scale_y_continuous(name = "Percentage", labels = scales::percent) +
   coord_flip()
+```
+
+```{r}
+# parse $ budget and gross into real numbers to calculate
+top_genres_info <- top_genres_info %>%
+  mutate(real_budget = parse_number(budget),
+         real_gross = parse_number(gross))
+
+# join crew_general with top_genres_info to get the gender distribution of the whole crew for each movie within each genre
+gender_by_genre_crew <- top_genres_info %>%
+  inner_join(crew_general, by = c("id" = "movie_id")) %>%
+  group_by(genre, gender) %>%
+  summarize(budget = mean(real_budget),
+            gross_revenue = mean(real_gross),
+            prop = first(prop)) %>%
+  group_by(genre) %>%
+  mutate(prop_female = first(prop))
+
+gender_by_genre_acting <- top_genres_info %>%
+  inner_join(crew_general_acting, by = c("id" = "movie_id")) %>%
+  group_by(genre, gender) %>%
+  summarize(budget = mean(real_budget),
+            gross_revenue = mean(real_gross),
+            prop = first(prop)) %>%
+  group_by(genre) %>%
+  mutate(prop_female = first(prop))
+```
+
+```{r}
+# graphs about gender distribution by genre
+# create a stacked bar chart for different roles in movies
+gender_crew_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_x_discrete(name = "Role in the Crew") +
+  scale_y_continuous(name = "Percentage", labels = scales::percent) + 
+  coord_flip()
+
+gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_x_discrete(name = "Role in the Crew") +
+  scale_y_continuous(name = "Percentage", labels = scales::percent) + 
+  coord_flip()
+  
+gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -prop_female), y = gross_revenue)) +
+  geom_bar(stat = "identity") 
+
+#figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
+#                    labels = c("Gender Distribution of Whole Crew by Genre", "Gender Distribution of Cast Only by Genre", "Gross Revenue in the US by Genre"),
+#                    ncol = 2, nrow = 2)
+#figure
 ```
 
