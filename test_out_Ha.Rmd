@@ -193,22 +193,25 @@ gender_by_genre_acting <- top_genres_info %>%
 # create a stacked bar chart for different roles in movies
 gender_crew_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
-  scale_x_discrete(name = "Role in the Crew") +
+  scale_x_discrete(name = "Genre") +
   scale_y_continuous(name = "Percentage", labels = scales::percent) + 
   coord_flip()
 
 gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
-  scale_x_discrete(name = "Role in the Crew") +
+  scale_x_discrete(name = "Genre") +
   scale_y_continuous(name = "Percentage", labels = scales::percent) + 
   coord_flip()
   
-gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -prop_female), y = gross_revenue)) +
-  geom_bar(stat = "identity") 
+gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, gross_revenue), y = gross_revenue)) +
+  geom_bar(stat = "identity") + 
+  theme(axis.text.x = element_text(angle = 45)) +
+  scale_x_discrete(name = "Genre") +
+  scale_y_continuous(name = "Gross Revenue (dollars)", labels = scales::comma) + 
 
-#figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
-#                    labels = c("Gender Distribution of Whole Crew by Genre", "Gender Distribution of Cast Only by Genre", "Gross Revenue in the US by Genre"),
-#                    ncol = 2, nrow = 2)
-#figure
+figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
+                    labels = c("Gender Distribution of \nWhole Crew by Genre", "Gender Distribution of \nCast Only by Genre", "Gross Revenue in the US \nby Genre"),
+                    ncol = 2, nrow = 2)
+figure
 ```
 
