@@ -203,15 +203,25 @@ gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genr
   scale_y_continuous(name = "Percentage", labels = scales::percent) + 
   coord_flip()
   
-gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, gross_revenue), y = gross_revenue)) +
+gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -gross_revenue), y = gross_revenue)) +
   geom_bar(stat = "identity") + 
   theme(axis.text.x = element_text(angle = 45)) +
   scale_x_discrete(name = "Genre") +
   scale_y_continuous(name = "Gross Revenue (dollars)", labels = scales::comma) 
 
-figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
-                    labels = c("Gender Distribution of \nWhole Crew by Genre", "Gender Distribution of \nCast Only by Genre", "Gross Revenue in the US \nby Genre"),
-                    ncol = 2, nrow = 2)
-figure
-```
+budget_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -budget), y = budget)) +
+  geom_bar(stat = "identity") + 
+  theme(axis.text.x = element_text(angle = 45)) +
+  scale_x_discrete(name = "Genre") +
+  scale_y_continuous(name = "Gross Revenue (dollars)", labels = scales::comma) 
 
+figure <- ggarrange(gender_crew_plot, gender_acting_plot,
+                    labels = c("Crew Gender by Genre", "Cast Gender by Genre"),
+                    ncol = 2, nrow = 1)
+figure
+
+figure2 <- ggarrange(gross_plot, budget_plot,
+                     labels = c("Gross", "Budget"),
+                     ncol = 2, nrow = 1)
+figure2
+```
