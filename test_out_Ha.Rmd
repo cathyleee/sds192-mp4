@@ -207,7 +207,7 @@ gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, gross_r
   geom_bar(stat = "identity") + 
   theme(axis.text.x = element_text(angle = 45)) +
   scale_x_discrete(name = "Genre") +
-  scale_y_continuous(name = "Gross Revenue (dollars)", labels = scales::comma) + 
+  scale_y_continuous(name = "Gross Revenue (dollars)", labels = scales::comma) 
 
 figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
                     labels = c("Gender Distribution of \nWhole Crew by Genre", "Gender Distribution of \nCast Only by Genre", "Gross Revenue in the US \nby Genre"),
