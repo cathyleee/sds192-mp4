@@ -282,11 +282,11 @@ budget_gender_plot <- budget_gender_prop %>%
   ggplot(aes(x=as.factor(dominant_gender), y=parsed_budget, fill=dominant_gender)) +
   geom_boxplot(alpha=0.2) +
   theme_gdocs() +
-  scale_fill_manual(breaks=c("male-dominated", "equal", "female-dominated"),
-                    values=c("#a081f4", "#f8766d","#00bfc4")) +
+  scale_fill_manual(values=c("#a081f4", "#f8766d","#00bfc4"),
+                    breaks=c("male-dominated", "equal", "female-dominated")) +
   ggtitle("Majority gender in a film's production team vs. budget received") +
   scale_x_discrete(name="Majority gender in production team", limits=c("male-dominated", "equal", "female-dominated")) +
-  scale_y_continuous(name="Budget received") +
+  scale_y_continuous(name="Budget received (USD)") +
   guides(fill=guide_legend(title="Majority gender"))
 budget_gender_plot
 ```
