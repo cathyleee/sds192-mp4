@@ -174,22 +174,6 @@ genre_plot <- genre_info %>%
 genre_plot
 ```
 
-```{r OLD CODE, eval=FALSE, include=FALSE}
-genre_info <- crew_general %>%
-  inner_join(movies_short, by = c("movie_id" = "id")) %>%
-  group_by(genre) %>%
-  summarise(genre_prop_female = sum(num_female)/(sum(num_female)+sum(num_male)),
-            genre_prop_male = sum(num_male)/(sum(num_female)+sum(num_male))) %>%
-  mutate(prop_total = genre_prop_female + genre_prop_male)
-```
-
-```{r DISCARD, eval=FALSE, include=FALSE}
-genre_info <- crew_general %>%
-  inner_join(movies_short, by = c("movie_id" = "id")) %>%
-  group_by(movie_id, genre, prop_female, prop_male) %>%
-  summarise(prop_total = sum(prop_female + prop_male))
-```
-
 ```{r}
 # create a stacked bar chart for different roles in movies
 ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop, fill = gender)) +
@@ -298,7 +282,11 @@ budget_gender_plot <- budget_gender_prop %>%
   ggplot(aes(x=as.factor(dominant_gender), y=parsed_budget, fill=dominant_gender)) +
   geom_boxplot(alpha=0.2) +
   theme_gdocs() +
-  scale_color_gdocs() +
-  ggtitle("Gender representation in the production team vs. budget received")
+  scale_fill_manual(breaks=c("male-dominated", "equal", "female-dominated"),
+                    values=c("#a081f4", "#f8766d","#00bfc4")) +
+  ggtitle("Majority gender in a film's production team vs. budget received") +
+  scale_x_discrete(name="Majority gender in production team", limits=c("male-dominated", "equal", "female-dominated")) +
+  scale_y_continuous(name="Budget received") +
+  guides(fill=guide_legend(title="Majority gender"))
 budget_gender_plot
 ```
