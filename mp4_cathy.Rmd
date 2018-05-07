@@ -273,7 +273,7 @@ budget_gender_prop <- budget_gender_info %>%
   drop_na(gender) %>%
   summarize(num_male = sum(gender == 'm'), 
             num_female = sum(gender == 'f')) %>%
-  mutate(dominant_gender = ifelse(num_male >= num_female, ifelse(num_male > num_female, "male-dominated", "equal"), "female-dominated"))
+  mutate(dominant_gender = ifelse(num_male >= num_female, ifelse(num_male > num_female, "majority_male", "equal"), "majority_female"))
 ```
 
 ```{r gender-budget plot}
@@ -282,11 +282,13 @@ budget_gender_plot <- budget_gender_prop %>%
   ggplot(aes(x=as.factor(dominant_gender), y=parsed_budget, fill=dominant_gender)) +
   geom_boxplot(alpha=0.2) +
   theme_gdocs() +
-  scale_fill_manual(values=c("#a081f4", "#f8766d","#00bfc4"),
-                    breaks=c("male-dominated", "equal", "female-dominated")) +
   ggtitle("Majority gender in a film's production team vs. budget received") +
-  scale_x_discrete(name="Majority gender in production team", limits=c("male-dominated", "equal", "female-dominated")) +
-  scale_y_continuous(name="Budget received (USD)", labels=scales::comma) +
-  guides(fill=guide_legend(title="Majority gender"))
+  scale_fill_manual(values=c("#a081f4", "#f8766d","#00bfc4"),
+                    name=c("Majority gender"),
+                    breaks=c("majority_male", "equal", "majority_female"),
+                    labels=c("Majority male", "Equally represented", "Majority female")) +
+  scale_x_discrete(name="Majority gender in production team",
+                   label=c("Majority male", "Equally represented", "Majority female")) +
+  scale_y_continuous(name="Budget received (USD)", labels=scales::comma)
 budget_gender_plot
 ```
