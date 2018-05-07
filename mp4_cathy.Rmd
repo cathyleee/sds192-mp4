@@ -280,15 +280,15 @@ budget_gender_prop <- budget_gender_info %>%
 # plot the boxplot
 budget_gender_plot <- budget_gender_prop %>%
   ggplot(aes(x=as.factor(dominant_gender), y=parsed_budget, fill=dominant_gender)) +
-  geom_boxplot(alpha=0.2) +
+  geom_boxplot(alpha=0.4) +
   theme_gdocs() +
   ggtitle("Majority gender in a film's production team vs. budget received") +
-  scale_fill_manual(values=c("#a081f4", "#f8766d","#00bfc4"),
-                    name=c("Majority gender"),
-                    breaks=c("majority_male", "equal", "majority_female"),
-                    labels=c("Majority male", "Equally represented", "Majority female")) +
   scale_x_discrete(name="Majority gender in production team",
-                   label=c("Majority male", "Equally represented", "Majority female")) +
-  scale_y_continuous(name="Budget received (USD)", labels=scales::comma)
+                   limits=c("majority_male", "equal", "majority_female"),
+                   labels=c("Majority male", "Equally represented", "Majority female")) +
+  scale_fill_manual(values=c( "#a081f4","#f8766d","#00bfc4")) +
+  scale_y_continuous(name="Budget received (USD)", 
+                     labels=scales::comma) +
+  guides(fill=FALSE)
 budget_gender_plot
 ```
