@@ -265,20 +265,23 @@ budget_by_gender <- db %>%
 ```{r gender-budget data wrangling}
 # calculate the gender demographics on the production team of each movie
 # calculate whether a movie's production team is female or male dominated 
-budget_gender_info <- budget_by_gender %>%
-  mutate(parsed_budget = parse_number(budget))
-
-budget_gender_prop <- budget_gender_info %>%
+budget_majority_gender <- budget_by_gender %>%
+  mutate(parsed_budget = parse_number(budget)) %>%
   group_by(title, parsed_budget) %>%
   drop_na(gender) %>%
   summarize(num_male = sum(gender == 'm'), 
             num_female = sum(gender == 'f')) %>%
-  mutate(dominant_gender = ifelse(num_male >= num_female, ifelse(num_male > num_female, "majority_male", "equal"), "majority_female"))
+  mutate(dominant_gender = ifelse(num_male >= num_female, ifelse(num_male > num_female, "majority_male", "equal"), "majority_female")) %>%
+  arrange(desc(parsed_budget)) 
+  
+# remove the outlier in majority_male so we can examine the data more closely in the plot
+budget_majority_gender <- 
+  budget_majority_gender[-c(1),]
 ```
 
 ```{r gender-budget plot}
 # plot the boxplot
-budget_gender_plot <- budget_gender_prop %>%
+budget_gender_plot <- budget_majority_gender %>%
   ggplot(aes(x=as.factor(dominant_gender), y=parsed_budget, fill=dominant_gender)) +
   geom_boxplot(alpha=0.4) +
   theme_gdocs() +
@@ -288,7 +291,8 @@ budget_gender_plot <- budget_gender_prop %>%
                    labels=c("Majority male", "Equally represented", "Majority female")) +
   scale_fill_manual(values=c( "#a081f4","#f8766d","#00bfc4")) +
   scale_y_continuous(name="Budget received (USD)", 
-                     labels=scales::comma) +
+                     labels=scales::comma,
+                     breaks=seq(0, 300000000, 50000000)) +
   guides(fill=FALSE)
 budget_gender_plot
 ```
