@@ -286,7 +286,7 @@ budget_gender_plot <- budget_gender_prop %>%
                     breaks=c("male-dominated", "equal", "female-dominated")) +
   ggtitle("Majority gender in a film's production team vs. budget received") +
   scale_x_discrete(name="Majority gender in production team", limits=c("male-dominated", "equal", "female-dominated")) +
-  scale_y_continuous(name="Budget received (USD)") +
+  scale_y_continuous(name="Budget received (USD)", labels=scales::comma) +
   guides(fill=guide_legend(title="Majority gender"))
 budget_gender_plot
 ```
