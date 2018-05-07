@@ -192,7 +192,7 @@ ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop
   geom_bar(stat = "identity", position = "fill") +
   scale_x_discrete(name = "Role in the Crew") +
   scale_y_continuous(name = "Percentage", labels = scales::percent) +
-  coord_flip()
+  coord_flip()g
 ```
 
 ```{r}
@@ -252,4 +252,58 @@ figure
 # among the cast, get the producers/writers/directors
 # get proportion of men and women among producers/writers/directors
 
+# filter for movies made by US companies only 
+# get gender and budget information for each movie
+sql <- "
+SELECT t.title, mi.info AS budget, n.gender
+FROM cast_info ci
+JOIN name n ON n.id = ci.person_id
+JOIN movie_info mi ON mi.movie_id = ci.movie_id
+JOIN movie_info mi2 ON mi2.movie_id = mi.movie_id
+JOIN title t ON t.id = mi.movie_id
+JOIN movie_companies mc ON mc.movie_id = t.id
+JOIN company_name cn ON cn.id = mc.company_id
+WHERE mi.info_type_id = 105
+  AND mi.info LIKE '$%'
+  AND ci.role_id IN (3,4,5)
+  AND mi2.info_type_id = 107
+  AND mi2.info LIKE '%(USA)'
+  AND cn.country_code = '[us]'
+  AND t.production_year > 1980
+  AND t.kind_id = 1
+ORDER BY t.title; 
+"
+budget_by_gender <- db %>%
+  dbGetQuery(sql)
+```
+
+```{r DISCARD}
+# calculate whether a movie's production team is female or male dominated
+budget_with_genderprop <- budget_by_gender %>%
+  drop_na(gender) %>%
+  group_by(title) %>%
+  summarize(count(gender)) 
+```
+
+```{r DISCARD}
+# calculate the gender demogrpahics on the production team of each movie
+budget_genderprop <- budget_by_gender %>%
+  group_by(title, budget, gender) %>%
+  summarize(num = n()) %>%
+  drop_na(gender)
+
+# calculate whether a movie's production team is female or male dominated
+gender_domination <- budget_genderprop %>%
+  mutate(dominant_gender = ifelse(num[gender == "m"] > num[gender == "f"], "male-dominated", "female-dominated"))
+```
+
+```{r}
+# calculate the gender demographics on the production team of each movie
+# calculate whether a movie's production team is female or male dominated 
+budget_gender_prop <- budget_by_gender %>%
+  group_by(title, budget) %>%
+  drop_na(gender) %>%
+  summarize(num_male = sum(gender == 'm'), 
+            num_female = sum(gender == 'f')) %>%
+  mutate(dominant_gender = ifelse(num_male >= num_female, ifelse(num_male > num_female, "male-dominated", "equal"), "female-dominated"))
 ```
