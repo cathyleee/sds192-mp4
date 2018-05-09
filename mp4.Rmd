@@ -15,11 +15,15 @@ output:
 Please see our Github repository[^github] for more details on this project.
 
 ## Introduction
+In the film industry, women are underrepresented: although they account for 50% of moviegoers[^moviegoers], they make up a startlingly small percentage of producers, writers, directors[^underrepresented], and other significant roles in the films they watch. Our objective was to find out the genres and roles in which gender disparity is the most glaring, and to find out whether women are discriminated against beyond representation: would movies with female-dominated production teams receive less funding than movies with male-dominated production teams?
+
+## Scope
+We filtered for movies after 1980 to keep our analysis up-to-date with current events. We wrangled data from movies produced in the US by US companies, so that we could use the US social climate as a control factor. Including movies made in other countries with different outlooks on gender diversity would make the data difficult to analyse. Therefore, we filtered for movies made in USD, located in the USA, and made by US film companies.
 
 ## Data Retrieval from SQL Database
+From the `IMDB`database, we pulled the movie ID, title, production year, genre, budget, and gross revenue of movies. We pulled another data frame about gender and role of each person in the crew (including actors/actresses). The last data frame we extracted was the production team members (director, producer, writer) and the budget of corresponding movies.
 
-From the IMDB movie database, we pulled data including movie ID, title, production year, genre, budget, and gross revenue of the movies that were produced by US companies after 1980, had budgets in USD and gross revenues from the US market. We pulled another data frame about gender and role of each person in the crew (including actors/actresses) of each movie that met the same criteria as listed above. The last data frame that we extracted from the database is specifically about ther personnel of the "production team" (director, producer, writer) and the budget of each movie that we filtered above. 
-```{r message = FALSE, warning = FALSE}
+```{r message=FALSE, warning=FALSE}
 # set up the environment
 library(mdsr)
 library(RMySQL)
@@ -29,7 +33,9 @@ library(ggthemes)
 library(formattable)
 theme_set(theme_pubr())
 db <- dbConnect_scidb(dbname = "imdb")
+```
 
+```{r}
 # query to get basic information about the movies
 # including movie ID, title, production year, genre, budget, and gross revenue in the US
 q1 <- "
@@ -148,6 +154,11 @@ ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop
   geom_text(aes(label = percent(prop), y = prop), size = 3, position = position_stack(vjust = 0.5)) +
   coord_flip() 
 ```
+Almost all employment fields are male-dominated except costume designing (almost three-quarters female). Although costume designing plays a pivotal role in movie production, its weekly base salary is $2,789.73, low compared to that of production designers, a similar field that is male-dominated, boasting a weekly base salary of $3,754.47[^salary]. Even in the few fields that are female-dominated, women face gender inequality. 
+
+Over the 38-year period we selected, women accounted for 4% of directors. This statistic was 8% in 2017, indicating that there might be some positive change where gender diversity is concerned. However, the cinematographer field is the most heavily male-dominated - our data showed that women made up only 1.3% of cinematographers in the US film industry. This percentage, unlike that of directors, has barely changed - it only rose slightly to 2% in 2017[^2017stats]. 
+
+Some contend that gender discrimination in the film industry is non-existent - making movies takes a toll on personal relationships, and filming might be on locations far from one’s primary residence. Women are usually the primary caregivers of the family[^caregivers], and cannot afford to be away from home for prolonged periods, and thus do not apply for jobs in the film industry as often as men. However, this is a misconception: interviews conducted by the US Equal Employment Opportunity Commission (EEOC) uncovered hiring discrimination faced by women who applied to work in the film industry, but were rejected because the crew “[didn’t] like working with women”, even though the women applying were sufficiently qualified[^qualified]. Therefore the issue does not lie in a deficiency of women applying for jobs in the film industry, but rather with discrimination in the hiring process.
 
 ### Gender Representation by Genre 
 ```{r warning = FALSE, message = FALSE, fig.width = 10, fig.height = 5 }
@@ -271,6 +282,7 @@ gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -gross_
   theme(plot.title = element_text(size = 12))
 gross_plot
 ```
+We also investigated how gender distribution of the cast (actors and actresses) and of the entire crew (all roles) might differ according to various film genres, then compared these percentages to the gross revenues by genre. The "Adventure" genre, the second most male-dominated genre by cast (76.66% male) and crew (78.21% male), is also the highest grossing genre. Some might use this as justification for the lack of gender parity in the industry, since a cast and crew does not require gender equality to reap profits. Nevertheless, the graphs show that fantasy has the third highest average gross revenue per movie, and is the fourth most gender-diverse genre; correlation does not equal causation, and factors other than gender representation influence a movie’s revenue. Overall, the lack of women in all genres could be attributed to male-led movies being considered universally relatable and more complex, while female-led movies are othered and trivialised[^othered].
 
 ### Change of Gender Representation in the Whole Crew by Genre from 1981-2017
 ```{r warning = FALSE, message = FALSE, fig.width = 10, fig.height = 5 }
@@ -306,6 +318,7 @@ top_genre_percent_change
 mean_change <- mean(top_genre_percent_change$prop_change)
 mean_change
 ```
+We observed how the percentage of female crew members changed from 1981 to 2017 in the top ten revenue-generating genres. The “Romance” genre has the biggest change in gender ratio (28.2%) over the last 36 years, and is the most gender diverse, with “Comedy” coming in second. However, romantic comedies have dialogue that is approximately 58% male, even those with female leads. The relatively high female participation in “Romance” can be attributed to the prevalence of heterosexuality in mainstream media, requiring a man and woman - in 2015, only 17.5% of films contained LGBT characters, and 65% of those characters were gay men, compared to 10% lesbians. Dishearteningly, there might be more women in comedies because they are often at the root of sexist jokes. 
 
 ### Budget Gap between Production Teams that are Different in Majority Gender
 ```{r warning = FALSE, message = FALSE, fig.width = 10, fig.height = 5 }
@@ -339,6 +352,10 @@ budget_gender_plot <- budget_majority_gender %>%
 budget_gender_plot
 ```
 
+We investigated the relationship between the majority gender in a film’s production team (comprising writers, producers, and directors) and the budget that film received. Interestingly, female-dominated teams had a lower upper quartile *and* lower quartile than male-dominated teams. Male-dominated teams also have far more outliers compared to 4 each for the other 2 teams, indicating that there were many movies with exorbitant budgets given to male-dominated teams. Although the median is roughly the same for male and female-dominated teams, indicating that male-dominated teams are often given lower budgets than higher, the fact remains that the highest budgets are largely given to male-dominated teams.
+
+Upon further research, we found that film industry decision-makers perceive that female directors make films tailored for only a subset of the market, while male directors are expected to make films that are more generalised and wide-reaching. They also doubt the competence of female directors, and wrongly assume a scarcity of female directors (when in fact they are simply unaware of them). This could account for why men are more likely to be hired over women for production teams.
+
 ```{r warning = FALSE, MESSAGE = FALSE}
 # run a regression model to test whether the difference in budget between male and female-dominated production team is significant
 budget_majority_gender$dominant_gender <- as.factor(budget_majority_gender$dominant_gender)
@@ -347,5 +364,18 @@ budget_model <- lm(data = budget_majority_gender, parsed_budget ~ dominant_gende
 summary(budget_model)
 confint(budget_model, level = .95) # obtain 95% CIs for all coefficients
 ```
+We performed multiple regression to analyse the differences in budget received among the 3 categories. `95% CI of the coefficient of dominant_gendermajority_female = [-23348725, -4892295]`, meaning that we are 95% confident that female-dominated production teams have from 23.35 to 48.92 million USD on average less in budget than male-dominated teams per movie. 
 
-[^github]: https://github.com/cathyleee/sds192-mp4
+The coefficient of -13.04 million indicates that production teams with equal gender representation are predicted to have (on average) 13.04 million USD less in budget than male-dominated teams, adjusted for production year. This coefficient is statistically significant because our p-value is 0.007 (< 0.05); there is sufficient evidence that this budget gap is statistically significant.
+
+The coefficient of -14.12 million indicates that female-dominated production teams are predicted to have an average budget $14.12m less than male-dominated production teams, adjusted for production year. This coefficient is statistically significant because our p-value is 0.003 (< 0.05); there is sufficient evidence that this budget gap is statistically significant.
+
+[^github]: Our [Github Repository](https://github.com/cathyleee/sds192-mp4)
+[^moviegoers]: Statistic from [MPAA 2017](https://www.mpaa.org/wp-content/uploads/2018/04/MPAA-THEME-Report-2017_Final.pdf)
+[^underrepresented]: Women comprised only 24% of protagonists in 2017 according to the [Center for the Study of Women in Television and Film](https://womenandhollywood.com/resources/statistics/), and were in the extreme minority where significant roles in production were concerned.
+[^salary]: The salaries of the Art Directors Guild, whose members are 73% male, and that of the Costume Designers Guild, whose members are almost 80% female, were compared in a [Variety article](http://variety.com/2016/biz/news/art-director-costumes-groups-gender-inequality-1201905400/).
+[^2017stats]: Retrieved from a study conducted by the [Center for the Study of Women in Television and Film](https://womenintvfilm.sdsu.edu/wp-content/uploads/2018/01/2017_Celluloid_Ceiling_Report.pdf)
+[^caregivers]: Women are found by the [Pew Research Centre](http://www.pewresearch.org/fact-tank/2015/10/01/women-more-than-men-adjust-their-careers-for-family-life/) to be more likely than men to adjust their careers for family life.
+[^qualified]: From excerpts of interviews on gender discrimination in the film industry conducted by the [EEOC](http://www.scpr.org/programs/the-frame/2017/02/16/55132/gender-discrimination-in-hollywood-is-real/).
+[^othered]: We are subconsciously more critical of female-led movies, and more likely to see women as two-dimensional. Retrieved from [the Guardian](https://www.theguardian.com/news/2018/mar/06/the-male-glance-how-we-fail-to-take-womens-stories-seriously).
+
