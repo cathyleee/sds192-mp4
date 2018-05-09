@@ -191,7 +191,7 @@ gender_by_genre_acting <- top_genres_info %>%
   mutate(prop_female = first(prop))
 ```
 
-```{r}
+```{r Gender vs genre}
 # graphs about gender distribution by genre
 # create a stacked bar chart for different roles in movies
 gender_crew_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
@@ -219,6 +219,48 @@ figure <- ggarrange(gender_crew_plot, gender_acting_plot, gross_plot,
                     labels = c("Gender Distribution of \nWhole Crew by Genre", "Gender Distribution of \nCast Only by Genre", "Gross Revenue in the US \nby Genre"),
                     ncol = 2, nrow = 2)
 figure
+```
+
+```{r Gender vs genre over time}
+##All top 10 genres_crew ratios_over time 
+gender_crew_time_top10 <- top_genres_info %>% 
+   inner_join(crew_general, by = c("id" = "movie_id")) %>%
+  group_by(genre, gender,production_year) %>%
+  summarize(budget = mean(real_budget),
+            gross_revenue = mean(real_gross),
+            prop = mean(prop)) %>%
+  group_by(genre,production_year) %>%
+  mutate(prop_female = first(prop)) 
+
+time_f_top10<- subset(gender_crew_time_top10, gender_crew_time_top10$gender=="f")
+
+## plot All genres
+test_timeplot_ten <- ggplot(data=time_f_top10,
+                      aes(x =production_year, y =prop)) +
+  geom_line()+
+    scale_x_continuous(name="Year")+
+  scale_y_continuous(name= "Percentage ",labels = scales::percent)+
+  theme_classic()+
+  facet_wrap(~genre)
+
+test_timeplot_ten
+
+###Top genres _gender ratio percent change
+top_genre_percent_change<- top_genres_info %>% 
+  inner_join(crew_general, by = c("id" = "movie_id")) %>%
+  group_by(genre, gender, production_year) %>%
+  summarize(budget = mean(real_budget),
+            gross_revenue = mean(real_gross),
+            prop = mean(prop)) %>%
+  group_by(genre, production_year) %>%
+  mutate(prop_female = first(prop)) %>%
+  filter(production_year %in% c("1981", "2017")) %>% 
+  group_by(genre) %>% 
+  summarize(prop_change = last(prop_female) - first(prop_female))
+
+top_genre_percent_change
+
+mean_change <- mean(top_genre_percent_change$prop_change)
 ```
 
 ```{r gender-budget sql}
