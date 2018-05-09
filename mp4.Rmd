@@ -1,5 +1,5 @@
 ---
-title: "Mini Project 4"
+title: "Occupy Women: Gender Disparities in the US Film Industry"
 author: "Cathy Lee, Dardalie Brooks, and Ha Cao"
 date: "20 April 2018"
 output: 
@@ -33,9 +33,7 @@ library(ggthemes)
 library(formattable)
 theme_set(theme_pubr())
 db <- dbConnect_scidb(dbname = "imdb")
-```
 
-```{r}
 # query to get basic information about the movies
 # including movie ID, title, production year, genre, budget, and gross revenue in the US
 q1 <- "
