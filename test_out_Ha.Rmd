@@ -4,18 +4,17 @@ author: "Ha Cao"
 date: "April 29, 2018"
 output: html_document
 ---
-```{r Setup, message = FALSE, warning = FALSE}
+```{r message = FALSE, warning = FALSE}
 # set up the environment
 library(mdsr)
 library(RMySQL)
 library(tidyverse)
 library(ggpubr)
 library(ggthemes)
+library(formattable)
 theme_set(theme_pubr())
 db <- dbConnect_scidb(dbname = "imdb")
-```
 
-```{r}
 # query to get basic information about the movies
 # including movie ID, title, production year, genre, budget, and gross revenue in the US
 q1 <- "
@@ -48,9 +47,7 @@ top_genres <- movies_all_info %>%
   summarize(num_movies = n()) %>%
   arrange(desc(num_movies)) %>%
   head(10)
-```
 
-```{r}
 # filter out top 10 genres
 top_genres_info <- movies_all_info %>% 
   filter(genre %in% c("Drama", "Comedy", "Thriller", "Action", "Adventure", "Crime", "Romance", "Sci-Fi", "Fantasy", "Horror")) %>%
@@ -169,6 +166,7 @@ ggplot(data = crew_short, aes(x = reorder(role_in_movie, -prop_female), y = prop
                               "editor" = "Editor", "production designer" = "Production Designer",
                               "producer" = "Producer", "miscellaneous crew" = "Miscellaneous Crew", 
                               "actor/actress" = "Actor/Actress", "costume designer" = "Costume Designer")) +
+  geom_text(aes(label = percent(prop), y = prop), size = 3, position = position_stack(vjust = 0.5)) +
   coord_flip() 
 ```
 
@@ -210,6 +208,7 @@ gender_crew_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -
   theme(plot.title = element_text(size = 12),
         legend.title = element_text(size = 10)) +
   scale_fill_manual(values = c("#f8766d", "#00bfc4"), name = "Gender", breaks = c("f", "m"), labels = c("F", "M")) +
+  geom_text(aes(label = percent(prop), y = prop), size = 3, position = position_stack(vjust = 0.5)) +
   coord_flip()
 
 gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genre, -prop_female), y = prop, fill = gender)) +
@@ -221,6 +220,7 @@ gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genr
   theme(plot.title = element_text(size = 12),
         legend.title = element_text(size = 10)) +
   scale_fill_manual(values = c("#f8766d", "#00bfc4"), name = "Gender", breaks = c("f", "m"), labels = c("F", "M")) +
+  geom_text(aes(label = percent(prop), y = prop), size = 3, position = position_stack(vjust = 0.5)) +
   coord_flip()
   
 gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -gross_revenue), y = gross_revenue)) +
