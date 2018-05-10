@@ -178,13 +178,17 @@ top_genres_info <- top_genres_info %>%
 
 # join crew_general with top_genres_info to get the gender distribution of the whole crew for each movie within each genre
 gender_by_genre_crew <- top_genres_info %>%
-  inner_join(crew_general, by = c("id" = "movie_id")) %>%
+  inner_join(crew_general, by = c("id" = "movie_id"))%>%
   group_by(genre, gender) %>%
   summarize(budget = mean(real_budget),
             gross_revenue = mean(real_gross),
             prop = mean(prop)) %>%
   group_by(genre) %>%
-  mutate(prop_female = first(prop))
+  mutate(prop_female = first(prop))  
+
+gross_by_genre <- gender_by_genre_crew %>%
+  group_by(genre) %>%
+  summarize(gross_revenue = mean(gross_revenue))
 
 gender_by_genre_acting <- top_genres_info %>%
   inner_join(crew_general_acting, by = c("id" = "movie_id")) %>%
@@ -223,7 +227,7 @@ gender_acting_plot <- ggplot(data = gender_by_genre_acting, aes(x = reorder(genr
   geom_text(aes(label = percent(prop), y = prop), size = 3, position = position_stack(vjust = 0.5)) +
   coord_flip()
   
-gross_plot <- ggplot(data = gender_by_genre_crew, aes(x = reorder(genre, -gross_revenue), y = gross_revenue)) +
+gross_plot <- ggplot(data = gross_by_genre, aes(x = reorder(genre, -gross_revenue), y = gross_revenue)) +
   geom_bar(stat = "identity", alpha = 0.5, fill = "#a081f4") + 
   theme_gdocs() +
   theme(axis.text.x = element_text(angle = 45)) +
